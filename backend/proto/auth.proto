@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package auth;
+
+service AuthService {
+  rpc SendAuthCode   (SendAuthCodeRequest)    returns (AuthResponse);
+  rpc VerifyAuthCode (VerifyAuthCodeRequest)  returns (LoginResponse);
+  rpc RefreshToken   (RefreshTokenRequest)    returns (RefreshResponse);
+  rpc Logout         (LogoutRequest)          returns (AuthResponse);
+  rpc OAuthLogin     (OAuthLoginRequest)      returns (LoginResponse);
+  rpc ValidateUser   (ValidateUserRequest)    returns (ValidateUserResponse);
+  rpc Ping           (PingRequest)            returns (PingResponse);
+}
+
+message PingRequest  {}
+message PingResponse { bool ok = 1; }
+
+message SendAuthCodeRequest  { string email = 1; }
+message VerifyAuthCodeRequest { string email = 1; string code = 2; }
+message RefreshTokenRequest  { string refreshToken = 1; }
+message LogoutRequest        { string refreshToken = 1; }
+message OAuthLoginRequest {
+  string email      = 1;
+  string name       = 2;
+  string avatar     = 3;
+  string provider   = 4;
+  string providerId = 5;
+}
+
+message ValidateUserRequest  { string userId = 1; }
+
+message AuthResponse {
+  string  message = 1;
+  bool    success = 2;
+}
+
+message LoginResponse {
+  string      accessToken  = 1;
+  string      refreshToken = 2;
+  UserPayload user         = 3;
+}
+
+message RefreshResponse {
+  bool   success      = 1;
+  string accessToken  = 2;
+  string refreshToken = 3;
+}
+
+message ValidateUserResponse {
+  bool        valid = 1;
+  UserPayload user  = 2;
+}
+
+message UserPayload {
+  string id        = 1;
+  string email     = 2;
+  string name      = 3;
+  string avatar    = 4;
+  string createdAt = 5;
+  string updatedAt = 6;
+  string role      = 7;
+  bool   isBlocked = 8;
+  string googleId  = 9;
+  string githubId  = 10;
+}

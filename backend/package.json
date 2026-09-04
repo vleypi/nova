@@ -1,0 +1,103 @@
+{
+  "name": "nestjs-grpc-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start:gateway": "nest start api-gateway",
+    "start:users": "nest start users-service",
+    "start:auth": "nest start auth-service",
+    "start:boards": "nest start boards-service",
+    "start:gateway:dev": "nest start api-gateway --watch",
+    "start:users:dev": "nest start users-service --watch",
+    "start:auth:dev": "nest start auth-service --watch",
+    "start:boards:dev": "nest start boards-service --watch",
+    "build:all": "nest build api-gateway && nest build users-service && nest build auth-service && nest build boards-service && nest build collaboration-service",
+    "start:collab": "nest start collaboration-service",
+    "start:collab:dev": "nest start collaboration-service --watch",
+    "dev": "wsl sudo service redis-server start && concurrently --kill-others-on-fail --names \"gateway,auth,users,boards,collab\" --prefix-colors \"cyan,yellow,green,blue,magenta\" \"npm run start:gateway:dev\" \"npm run start:auth:dev\" \"npm run start:users:dev\" \"npm run start:boards:dev\" \"npm run start:collab:dev\"",
+    "typeorm": "ts-node -r tsconfig-paths/register -P tsconfig.json node_modules/typeorm/cli.js",
+    "migration:users:generate": "npm run typeorm -- migration:generate apps/users-service/src/migrations/InitialSchema -d apps/users-service/data-source.ts",
+    "migration:users:run": "npm run typeorm -- migration:run -d apps/users-service/data-source.ts",
+    "migration:users:revert": "npm run typeorm -- migration:revert -d apps/users-service/data-source.ts",
+    "migration:boards:generate": "npm run typeorm -- migration:generate apps/boards-service/src/migrations/InitialSchema -d apps/boards-service/data-source.ts",
+    "migration:boards:run": "npm run typeorm -- migration:run -d apps/boards-service/data-source.ts",
+    "migration:boards:revert": "npm run typeorm -- migration:revert -d apps/boards-service/data-source.ts",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "seed": "ts-node -r tsconfig-paths/register -P tsconfig.json scripts/seed.ts"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": ".",
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": [
+        "ts-jest",
+        {
+          "tsconfig": "tsconfig.json"
+        }
+      ]
+    },
+    "collectCoverageFrom": [
+      "apps/**/*.ts",
+      "!apps/**/main.ts",
+      "!**/*.module.ts"
+    ],
+    "coverageDirectory": "./coverage",
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1"
+    }
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.104.0",
+    "@aws-sdk/client-s3": "^3.1036.0",
+    "@aws-sdk/s3-request-presigner": "^3.1036.0",
+    "@grpc/grpc-js": "^1.14.3",
+    "@grpc/proto-loader": "^0.8.0",
+    "@nestjs/common": "^11.1.14",
+    "@nestjs/core": "^11.1.14",
+    "@nestjs/jwt": "^11.0.0",
+    "@nestjs/microservices": "^11.1.14",
+    "@nestjs/platform-express": "^11.1.14",
+    "@nestjs/platform-socket.io": "^11.1.14",
+    "@nestjs/swagger": "^11.2.6",
+    "@nestjs/throttler": "^6.5.0",
+    "@nestjs/typeorm": "^11.0.0",
+    "@nestjs/websockets": "^11.1.14",
+    "@socket.io/redis-adapter": "^8.3.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.3.1",
+    "ioredis": "^5.10.0",
+    "nanoid": "^3.3.11",
+    "nodemailer": "^8.0.9",
+    "pg": "^8.13.3",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "socket.io": "^4.8.3",
+    "typeorm": "^0.3.20"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.16",
+    "@nestjs/schematics": "^11.0.9",
+    "@nestjs/testing": "^11.1.17",
+    "@types/cookie-parser": "^1.4.7",
+    "@types/express": "^5.0.3",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.3.0",
+    "@types/nodemailer": "^8.0.0",
+    "concurrently": "^8.2.2",
+    "jest": "^30.3.0",
+    "ts-jest": "^29.4.9",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.9.3"
+  }
+}

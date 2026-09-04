@@ -1,0 +1,147 @@
+syntax = "proto3";
+
+package users;
+
+service UsersService {
+  rpc FindById       (FindByIdRequest)       returns (UserResponse);
+  rpc FindByEmail    (FindByEmailRequest)    returns (UserResponse);
+  rpc FindByProviderId (FindByProviderIdRequest) returns (UserResponse);
+  rpc Create         (CreateRequest)         returns (UserResponse);
+  rpc UpdateProfile  (UpdateProfileRequest)  returns (UserResponse);
+  rpc UpdateRole     (UpdateRoleRequest)     returns (UserResponse);
+  rpc FindAll        (FindAllRequest)        returns (UserListResponse);
+  rpc FindManyByIds  (FindManyByIdsRequest)  returns (UserListResponse);
+  rpc BlockUser      (BlockUserRequest)      returns (UserResponse);
+  rpc DeleteUser     (DeleteUserRequest)     returns (DeleteUserResponse);
+  rpc LinkProvider   (LinkProviderRequest)   returns (UserResponse);
+  rpc UnlinkProvider (UnlinkProviderRequest) returns (UserResponse);
+  rpc GetStats       (GetStatsRequest)       returns (UserStatsResponse);
+  rpc CreateAuditLog (CreateAuditLogRequest) returns (AuditLogResponse);
+  rpc GetAuditLogs   (GetAuditLogsRequest)   returns (AuditLogListResponse);
+  rpc GetUsersTimeseries (GetTimeseriesRequest) returns (UsersTimeseriesResponse);
+}
+
+message FindByIdRequest    { string id    = 1; }
+message FindByEmailRequest { string email = 1; }
+
+message FindByProviderIdRequest {
+  string provider   = 1;
+  string providerId = 2;
+}
+
+message CreateRequest { string email = 1; }
+
+message UpdateProfileRequest {
+  string id     = 1;
+  string name   = 2;
+  string avatar = 3;
+}
+
+message UpdateRoleRequest {
+  string id   = 1;
+  string role = 2;
+}
+
+message FindAllRequest {
+  int32  page      = 1;
+  int32  limit     = 2;
+  string search    = 3; // search by email / name (case-insensitive substring)
+  string role      = 4; // SUPER_ADMIN | ADMIN | MANAGER | USER | '' (any)
+  string status    = 5; // 'active' | 'blocked' | '' (any)
+}
+
+message FindManyByIdsRequest {
+  repeated string ids = 1;
+}
+
+message BlockUserRequest {
+  string id        = 1;
+  bool   isBlocked = 2;
+}
+
+message DeleteUserRequest  { string id = 1; }
+message DeleteUserResponse { bool success = 1; }
+
+message LinkProviderRequest {
+  string id         = 1;
+  string provider   = 2;
+  string providerId = 3;
+}
+
+message UnlinkProviderRequest {
+  string id       = 1;
+  string provider = 2;
+}
+
+message GetStatsRequest {}
+message UserStatsResponse {
+  int32 totalUsers   = 1;
+  int32 todayUsers   = 2;
+  int32 blockedUsers = 3;
+}
+
+message CreateAuditLogRequest {
+  string actorId     = 1;
+  string actorEmail  = 2;
+  string action      = 3;
+  string targetId    = 4;
+  string targetType  = 5;
+  string details     = 6; // JSON string
+}
+
+message GetAuditLogsRequest {
+  int32  page     = 1;
+  int32  limit    = 2;
+  string action   = 3;
+  string actorId  = 4;
+  string targetId = 5;
+}
+
+message AuditLogResponse {
+  string id         = 1;
+  string actorId    = 2;
+  string actorEmail = 3;
+  string action     = 4;
+  string targetId   = 5;
+  string targetType = 6;
+  string details    = 7;
+  string createdAt  = 8;
+}
+
+message AuditLogListResponse {
+  repeated AuditLogResponse logs = 1;
+  int32 total      = 2;
+  int32 page       = 3;
+  int32 totalPages = 4;
+}
+
+message GetTimeseriesRequest {
+  int32 months = 1;  // number of monthly buckets (oldest → newest)
+  int32 days   = 2;  // number of daily buckets (for heatmap)
+}
+
+message UsersTimeseriesResponse {
+  repeated int32 usersMonthly  = 1;
+  repeated int32 activityDaily = 2;
+  int32          activityTotal = 3;
+}
+
+message UserListResponse {
+  repeated UserResponse users = 1;
+  int32 total      = 2;
+  int32 page       = 3;
+  int32 totalPages = 4;
+}
+
+message UserResponse {
+  string id        = 1;
+  string email     = 2;
+  string name      = 3;
+  string avatar    = 4;
+  string role      = 5;
+  string createdAt = 6;
+  string updatedAt = 7;
+  bool   isBlocked = 8;
+  string googleId  = 9;
+  string githubId  = 10;
+}

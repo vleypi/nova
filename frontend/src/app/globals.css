@@ -1,0 +1,180 @@
+@import "tailwindcss";
+
+@theme {
+  --color-nova-blue: #4262ff;
+  --color-nova-blue-light: #f1f3ff;
+  --color-nova-purple: #9d6cff;
+  --color-nova-green: #7fd6c2;
+  --color-nova-pink: #ff79d1;
+  --color-nova-yellow: #ffd233;
+  --color-nova-dark: #050038;
+  --color-nova-gray: #d9dce8;
+
+  --font-inter: "Inter", sans-serif;
+
+}
+
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+
+button {
+  cursor: pointer;
+}
+
+/* Custom Select Styles */
+.custom-select {
+  position: relative;
+  display: inline-block;
+}
+
+.custom-select select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+}
+
+.custom-select::after {
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #6b7280;
+  pointer-events: none;
+}
+
+.custom-select select:focus + .custom-select::after {
+  border-top-color: #4262FF;
+}
+
+/* Hide desktop sidebar on narrow screens before JS takes over */
+@media (max-width: 767px) {
+  .sidebar-desktop {
+    display: none;
+  }
+}
+
+/* Sidebar Desktop */
+.sidebar-desktop {
+  width: 280px;
+  background: white;
+  border-right: 1px solid #e5e7eb;
+  overflow: hidden;
+  flex-shrink: 0;
+  will-change: width;
+}
+
+.sidebar-desktop.ready {
+  transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sidebar-desktop.collapsed {
+  width: 76px;
+}
+
+.sidebar-desktop.collapsed .space-edit-btn {
+  display: none;
+}
+
+.sidebar-desktop.collapsed .spaces-empty {
+  display: none;
+}
+
+.spaces-create-btn {
+  transition:
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.15s,
+    background-color 0.15s;
+}
+
+.sidebar-desktop.collapsed .spaces-create-btn {
+  transform: translateX(-6px);
+}
+
+.spaces-section {
+  position: relative;
+}
+
+.spaces-section::before {
+  content: "";
+  position: absolute;
+  top: -12.75px;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  border-radius: 9999px;
+  background-color: #e5e7eb;
+  opacity: 0;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.sidebar-desktop.collapsed .spaces-section::before {
+  opacity: 1;
+}
+
+/* Sidebar Mobile */
+.sidebar-mobile {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 280px;
+  z-index: 50;
+  background: white;
+  border-right: 1px solid #e5e7eb;
+  transform: translateX(-100%);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  overflow-y: auto;
+}
+
+.sidebar-mobile.ready {
+  transition: transform 0.3s ease;
+}
+
+.sidebar-mobile.open {
+  transform: translateX(0);
+}
+
+.sidebar-mobile-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0.75rem 1rem;
+  height: 60px;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 40;
+}
+
+/* Sonner toasts */
+html [data-sonner-toaster][data-sonner-theme=light] {
+  --normal-bg: #ffffff;
+  --normal-border: #e5e7eb;
+  --normal-text: #111827;
+  --success-bg: #f0fdf4;
+  --success-border: #bbf7d0;
+  --success-text: #15803d;
+  --error-bg: #fef2f2;
+  --error-border: #fecaca;
+  --error-text: #dc2626;
+}
+

@@ -1,0 +1,219 @@
+﻿# 3000 frontend
+# 4000 nginx 
+# 5432 postgres
+# 6379 redis
+# 9000 minio
+# 9001 minio
+# 1025 SMTP
+# 8025 web-UI mailhog
+
+
+x-api-gateway-base: &api-gateway-base
+  build:
+    context: ./backend
+    args:
+      APP: api-gateway
+  restart: unless-stopped
+  env_file: ./backend/.env
+  environment:
+    NODE_ENV: production
+    COOKIE_SECURE: "false" 
+    USERS_SERVICE_URL: users-service:5000
+    AUTH_SERVICE_URL: auth-service:5001
+    BOARDS_SERVICE_URL: boards-service:5002
+    COLLAB_INTERNAL_URL: http://collaboration-service:5003/internal
+    API_GATEWAY_PORT: 4000
+    MINIO_ENDPOINT: http://minio:9000
+  depends_on:
+    - users-service
+    - auth-service
+    - boards-service
+    - collaboration-service
+    - minio
+
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: nova
+      POSTGRES_PASSWORD: nova_secret
+      POSTGRES_DB: nova_users
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nova -d nova_users"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  users-service:
+    build:
+      context: ./backend
+      args:
+        APP: users-service
+    restart: unless-stopped
+    env_file: ./backend/.env
+    environment:
+      USERS_SERVICE_URL: 0.0.0.0:5000
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: nova
+      POSTGRES_PASSWORD: nova_secret
+      POSTGRES_USERS_DB: nova_users
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  auth-service:
+    build:
+      context: ./backend
+      args:
+        APP: auth-service
+    restart: unless-stopped
+    env_file: ./backend/.env
+    environment:
+      NODE_ENV: production
+      AUTH_SERVICE_URL: 0.0.0.0:5001
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      USERS_SERVICE_URL: users-service:5000
+      SMTP_HOST: mailhog
+      SMTP_PORT: 1025
+    depends_on:
+      redis:
+        condition: service_healthy
+      users-service:
+        condition: service_started
+      mailhog:
+        condition: service_started
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    restart: unless-stopped
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Web UI
+
+  boards-service:
+    build:
+      context: ./backend
+      args:
+        APP: boards-service
+    restart: unless-stopped
+    env_file: ./backend/.env
+    environment:
+      BOARDS_SERVICE_URL: 0.0.0.0:5002
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: nova
+      POSTGRES_PASSWORD: nova_secret
+      POSTGRES_BOARDS_DB: nova_boards
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_PUBLIC_ENDPOINT: http://localhost:9000
+      MAX_SPACE_IMAGE_BYTES: 524288000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+  collaboration-service:
+    build:
+      context: ./backend
+      args:
+        APP: collaboration-service
+    restart: unless-stopped
+    env_file: ./backend/.env
+    environment:
+      NODE_ENV: production
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      COLLAB_SERVICE_PORT: 5003
+      BOARDS_SERVICE_URL: boards-service:5002
+      MAX_BOARD_ELEMENTS: 10000
+    dns:
+      - 127.0.0.11
+      - 8.8.8.8
+      - 1.1.1.1
+    depends_on:
+      redis:
+        condition: service_healthy
+      boards-service:
+        condition: service_started
+
+  api-gateway-1:
+    <<: *api-gateway-base
+  api-gateway-2:
+    <<: *api-gateway-base
+  api-gateway-3:
+    <<: *api-gateway-base
+
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "4000:80"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api-gateway-1
+      - api-gateway-2
+      - api-gateway-3
+      - collaboration-service
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin12345}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:4000
+        API_URL: http://nginx:80
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      API_URL: http://nginx:80
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - nginx
+
+volumes:
+  postgres_data:
+  minio-data:
+

@@ -1,0 +1,407 @@
+syntax = "proto3";
+
+package boards;
+
+service BoardsService {
+  // Boards 
+  rpc GetBoards       (GetBoardsRequest)       returns (BoardListResponse);
+  rpc GetFavorites    (GetFavoritesRequest)     returns (BoardListResponse);
+  rpc GetBoard        (GetBoardRequest)         returns (BoardResponse);
+  rpc CreateBoard     (CreateBoardRequest)      returns (BoardResponse);
+  rpc UpdateBoard     (UpdateBoardRequest)      returns (BoardResponse);
+  rpc DeleteBoard     (DeleteBoardRequest)      returns (SuccessResponse);
+  rpc DuplicateBoard  (DuplicateBoardRequest)   returns (BoardResponse);
+  rpc ToggleFavorite  (ToggleFavoriteRequest)   returns (FavoriteResponse);
+  rpc ExportBoard     (ExportBoardRequest)      returns (ExportBoardResponse);
+  rpc MoveBoard       (MoveBoardRequest)        returns (BoardResponse);
+
+  // Spaces
+  rpc GetSpaces       (GetSpacesRequest)        returns (SpaceListResponse);
+  rpc GetSpace        (GetSpaceRequest)         returns (SpaceDetailResponse);
+  rpc CreateSpace     (CreateSpaceRequest)      returns (SpaceResponse);
+  rpc UpdateSpace     (UpdateSpaceRequest)      returns (SpaceResponse);
+  rpc DeleteSpace     (DeleteSpaceRequest)      returns (SuccessResponse);
+
+  // Space Members
+  rpc GetSpaceMembers         (GetSpaceMembersRequest)         returns (MemberListResponse);
+  rpc JoinByInvite            (JoinByInviteRequest)            returns (JoinByInviteResponse);
+  rpc RemoveMember            (RemoveMemberRequest)            returns (SuccessResponse);
+  rpc LeaveSpace              (LeaveSpaceRequest)              returns (SuccessResponse);
+  rpc UpdateMemberPermissions (UpdateMemberPermissionsRequest) returns (MemberResponse);
+  rpc RegenerateInviteCode    (RegenerateInviteCodeRequest)    returns (InviteCodeResponse);
+
+  // Space Ownership
+  rpc TransferOwnership (TransferOwnershipRequest) returns (TransferOwnershipResponse);
+
+  // Admin
+  rpc AdminGetBoards   (AdminGetBoardsRequest)   returns (AdminBoardListResponse);
+  rpc AdminGetSpaces   (AdminGetSpacesRequest)   returns (AdminSpaceListResponse);
+  rpc AdminGetSpaceMembers (AdminGetSpaceMembersRequest) returns (MemberListResponse);
+  rpc GetBoardStats    (GetBoardStatsRequest)    returns (BoardStatsResponse);
+  rpc AdminDeleteBoard (AdminDeleteBoardRequest) returns (SuccessResponse);
+  rpc GetBoardsTimeseries (BoardsTimeseriesRequest) returns (BoardsTimeseriesResponse);
+  rpc AdminDeleteSpace    (AdminDeleteSpaceRequest) returns (SuccessResponse);
+  rpc GetUserBoardStats (GetUserBoardStatsRequest) returns (UserBoardStatsResponse);
+
+  // Assets
+  rpc PresignAsset       (PresignAssetRequest)       returns (PresignAssetResponse);
+  rpc ConfirmAsset       (ConfirmAssetRequest)       returns (ConfirmAssetResponse);
+  rpc CheckAssetAccess   (CheckAssetAccessRequest)   returns (CheckAssetAccessResponse);
+}
+
+// Board messages
+
+message GetBoardsRequest {
+  string userId  = 1;
+  string spaceId = 2; 
+}
+
+message GetFavoritesRequest {
+  string userId = 1;
+}
+
+message GetBoardRequest {
+  string id     = 1;
+  string userId = 2;
+}
+
+message CreateBoardRequest {
+  string name      = 1;
+  string createdBy = 2;
+  string spaceId   = 3;
+}
+
+message UpdateBoardRequest {
+  string id        = 1;
+  string userId    = 2;
+  string name      = 3;
+  bool   isPrivate = 4;
+  string thumbnail = 5;
+}
+
+message DeleteBoardRequest {
+  string id     = 1;
+  string userId = 2;
+}
+
+message DuplicateBoardRequest {
+  string id     = 1;
+  string userId = 2;
+}
+
+message ToggleFavoriteRequest {
+  string userId  = 1;
+  string boardId = 2;
+}
+
+message BoardResponse {
+  string id         = 1;
+  string name       = 2;
+  string createdBy  = 3;
+  string spaceId    = 4;
+  bool   isPrivate  = 5;
+  string thumbnail  = 6;
+  bool   isFavorite = 7;
+  string createdAt  = 8;
+  string updatedAt  = 9;
+}
+
+message BoardListResponse {
+  repeated BoardResponse boards = 1;
+}
+
+message FavoriteResponse {
+  bool   isFavorite = 1;
+  string boardId    = 2;
+}
+
+message ExportBoardRequest {
+  string id     = 1;
+  string userId = 2;
+}
+
+message ExportBoardResponse {
+  string id         = 1;
+  string name       = 2;
+  string createdBy  = 3;
+  string spaceId    = 4;
+  bool   isPrivate  = 5;
+  string thumbnail  = 6;
+  string createdAt  = 7;
+  string updatedAt  = 8;
+  repeated CanvasElementMessage elements = 9;
+}
+
+message CanvasElementMessage {
+  string id        = 1;
+  string type      = 2;
+  double x         = 3;
+  double y         = 4;
+  double width     = 5;
+  double height    = 6;
+  double rotation  = 7;
+  int32  zIndex    = 8;
+  double opacity   = 9;
+  string data      = 10;
+  bool   isLocked  = 11;
+  string createdBy = 12;
+  string updatedBy = 13;
+  string createdAt = 14;
+  string updatedAt = 15;
+}
+
+message MoveBoardRequest {
+  string id            = 1;
+  string userId        = 2;
+  string targetSpaceId = 3;
+}
+
+message SuccessResponse {
+  bool   success = 1;
+  string message = 2;
+}
+
+// Space messages
+
+message GetSpacesRequest {
+  string userId = 1;
+}
+
+message GetSpaceRequest {
+  string id     = 1;
+  string userId = 2;
+}
+
+message CreateSpaceRequest {
+  string name    = 1;
+  string ownerId = 2;
+}
+
+message UpdateSpaceRequest {
+  string id     = 1;
+  string userId = 2;
+  string name   = 3;
+}
+
+message DeleteSpaceRequest {
+  string id     = 1;
+  string userId = 2;
+}
+
+message SpaceResponse {
+  string id         = 1;
+  string name       = 2;
+  string ownerId    = 3;
+  string inviteCode = 4;
+  string createdAt  = 5;
+  string updatedAt  = 6;
+}
+
+message SpaceDetailResponse {
+  string id         = 1;
+  string name       = 2;
+  string ownerId    = 3;
+  string inviteCode = 4; 
+  string userRole   = 5; 
+  string createdAt  = 6;
+  string updatedAt  = 7;
+}
+
+message SpaceListResponse {
+  repeated SpaceResponse spaces = 1;
+}
+
+//Member messages
+
+message GetSpaceMembersRequest {
+  string spaceId = 1;
+  string userId  = 2; // для проверки доступа
+}
+
+message JoinByInviteRequest {
+  string inviteCode = 1;
+  string userId     = 2;
+}
+
+message JoinByInviteResponse {
+  SpaceResponse space         = 1;
+  bool          alreadyMember = 2;
+}
+
+message RemoveMemberRequest {
+  string spaceId      = 1;
+  string userId       = 2; 
+  string targetUserId = 3; 
+}
+
+message LeaveSpaceRequest {
+  string spaceId = 1;
+  string userId  = 2;
+}
+
+message UpdateMemberPermissionsRequest {
+  string spaceId        = 1;
+  string userId         = 2; 
+  string targetUserId   = 3; 
+  bool   canCreateBoards = 4;
+  bool   canEditBoards   = 5;
+  bool   canDraw         = 6;
+  bool   canDeleteBoards = 7;
+}
+
+message RegenerateInviteCodeRequest {
+  string spaceId = 1;
+  string userId  = 2;
+}
+
+message MemberResponse {
+  string id              = 1;
+  string userId          = 2;
+  string spaceId         = 3;
+  string role            = 4; 
+  bool   canCreateBoards = 5;
+  bool   canEditBoards   = 6;
+  bool   canDraw         = 7;
+  bool   canDeleteBoards = 8;
+  string joinedAt        = 9;
+}
+
+message MemberListResponse {
+  repeated MemberResponse members = 1;
+}
+
+message InviteCodeResponse {
+  string inviteCode = 1;
+}
+
+// Transfer Ownership messages
+
+message TransferOwnershipRequest {
+  string spaceId      = 1;
+  string userId       = 2;
+  string targetUserId = 3;
+}
+
+message TransferOwnershipResponse {
+  string spaceId        = 1;
+  string newOwnerId     = 2;
+  string previousOwnerId = 3;
+}
+
+// Admin messages
+
+message AdminGetBoardsRequest {
+  int32  page      = 1;
+  int32  limit     = 2;
+  string search    = 3;
+  string createdBy = 4;
+  // 'public' | 'private' | '' (empty = any)
+  string privacy   = 5;
+  // Filter by parent space id
+  string spaceId   = 6;
+}
+
+message AdminGetSpacesRequest {
+  int32  page     = 1;
+  int32  limit    = 2;
+  string search   = 3;
+  string memberId = 4;
+}
+
+message AdminGetSpaceMembersRequest {
+  string spaceId = 1;
+}
+
+message BoardsTimeseriesRequest {
+  int32 months = 1;  // oldest → newest bucket count
+}
+
+message AdminDeleteSpaceRequest {
+  string id = 1;
+}
+
+message BoardsTimeseriesResponse {
+  repeated int32 boardsMonthly = 1;
+  repeated int32 spacesMonthly = 2;
+}
+
+message GetBoardStatsRequest {}
+
+message AdminBoardListResponse {
+  repeated BoardResponse boards = 1;
+  int32 total      = 2;
+  int32 page       = 3;
+  int32 totalPages = 4;
+}
+
+message AdminSpaceResponse {
+  string id           = 1;
+  string name         = 2;
+  string ownerId      = 3;
+  string inviteCode   = 4;
+  int32  membersCount = 5;
+  string createdAt    = 6;
+  string updatedAt    = 7;
+}
+
+message AdminSpaceListResponse {
+  repeated AdminSpaceResponse spaces = 1;
+  int32 total      = 2;
+  int32 page       = 3;
+  int32 totalPages = 4;
+}
+
+message BoardStatsResponse {
+  int32 totalBoards  = 1;
+  int32 todayBoards  = 2;
+  int32 totalSpaces  = 3;
+  int32 todaySpaces  = 4;
+}
+
+message AdminDeleteBoardRequest {
+  string id = 1;
+}
+
+message GetUserBoardStatsRequest {
+  string userId = 1;
+}
+
+message UserBoardStatsResponse {
+  int32 boardsCreated = 1;
+  int32 spacesCount   = 2;
+}
+
+message PresignAssetRequest {
+  string boardId    = 1;
+  string userId     = 2;
+  string mime       = 3;
+  int32  sizeBytes  = 4;
+  string sha256     = 5;
+  int32  width      = 6;
+  int32  height     = 7;
+}
+message PresignAssetResponse {
+  string assetId    = 1;
+  string uploadUrl  = 2;
+  string storageKey = 3;
+  bool   duplicate  = 4;
+}
+
+message ConfirmAssetRequest {
+  string assetId = 1;
+  string userId  = 2;
+}
+message ConfirmAssetResponse {
+  string proxyUrl = 1;
+}
+
+message CheckAssetAccessRequest {
+  string assetId = 1;
+  string userId  = 2;
+}
+message CheckAssetAccessResponse {
+  bool   allowed    = 1;
+  string storageKey = 2;
+  string mime       = 3;
+  int32  sizeBytes  = 4;
+}

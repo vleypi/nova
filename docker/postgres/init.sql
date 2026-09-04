@@ -1,0 +1,2 @@
+CREATE DATABASE nova_boards;
+GRANT ALL PRIVILEGES ON DATABASE nova_boards TO nova;
