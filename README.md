@@ -4,13 +4,13 @@
 
 **Онлайн-доска для совместной работы с собственным canvas-движком и AI-агентом, который управляет содержимым холста напрямую.**
 
-![License: MIT](https://img.shields.io/badge/License-MIT-1a1a2e?style=flat-square)
 ![TypeScript](https://img.shields.io/badge/TypeScript-1a1a2e?style=flat-square&logo=typescript&logoColor=F7CB45)
 ![Next.js](https://img.shields.io/badge/Next.js-1a1a2e?style=flat-square&logo=next.js&logoColor=F7CB45)
 ![NestJS](https://img.shields.io/badge/NestJS-1a1a2e?style=flat-square&logo=nestjs&logoColor=F7CB45)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-1a1a2e?style=flat-square&logo=postgresql&logoColor=F7CB45)
 ![Socket.IO](https://img.shields.io/badge/Socket.IO-1a1a2e?style=flat-square&logo=socket.io&logoColor=F7CB45)
 ![Docker](https://img.shields.io/badge/Docker-1a1a2e?style=flat-square&logo=docker&logoColor=F7CB45)
+![License: MIT](https://img.shields.io/badge/License-MIT-1a1a2e?style=flat-square)
 
 Nova - интерактивная онлайн-доска для совместной работы, где пользователи создают пространства и доски, редактируют их сами или через AI-агента и видят изменения в реальном времени.
 
