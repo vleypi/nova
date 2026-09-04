@@ -2,6 +2,8 @@
   "name": "nova-frontend",
   "version": "0.1.0",
   "private": true,
+  "author": "Парфенов Владимир Олегович <vleypi@gmail.com> (https://github.com/vleypi)",
+  "license": "MIT",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

@@ -2,6 +2,8 @@
   "name": "nestjs-grpc-monorepo",
   "version": "1.0.0",
   "private": true,
+  "author": "Парфенов Владимир Олегович <vleypi@gmail.com> (https://github.com/vleypi)",
+  "license": "MIT",
   "scripts": {
     "start:gateway": "nest start api-gateway",
     "start:users": "nest start users-service",

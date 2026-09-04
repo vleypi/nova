@@ -54,7 +54,7 @@ export function Footer() {
 
         <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
           <div className="mb-4 md:mb-0 text-gray-400">
-            © 2025 Nova. Все права защищены.
+            © 2026 Парфенов Владимир Олегович. Nova. MIT License.
           </div>
           <div className="flex space-x-6">{socialLinks}</div>
         </div>
